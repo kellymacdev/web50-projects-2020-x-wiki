@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import markdown
 from . import util
 from django import forms
@@ -24,4 +24,11 @@ def page(request, title):
             "content": html_desired_page
         })
 
-
+def search_entry(request):
+    search = request.GET['q']
+    if search in util.list_entries():
+        return redirect("page", title=search)
+    else:
+        return render(request, "encyclopedia/nopage.html",{
+            "title": search.capitalize()
+        })
