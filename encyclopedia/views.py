@@ -26,9 +26,12 @@ def page(request, title):
 
 def search_entry(request):
     search = request.GET['q']
-    if search in util.list_entries():
-        return redirect("page", title=search)
-    else:
+    found_entry = False
+    for entry in util.list_entries():
+            if search.lower() in entry.lower():
+                found_entry=True
+                return redirect("page", title=search)
+    if not found_entry:
         return render(request, "encyclopedia/nopage.html",{
             "title": search.capitalize()
-        })
+            })
