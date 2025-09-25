@@ -5,6 +5,8 @@ from django import forms
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
+
+
 class NewEntry(forms.Form):
     title = forms.CharField(label="New title")
     content = forms.CharField(widget=forms.Textarea, label="New content")
@@ -40,12 +42,6 @@ def search_entry(request):
             "entries": util.list_entries()
             })
 
-
-#def create_page(request):
-    #return render(request, "encyclopedia/create.html", {
-        #"form": NewEntry
-    #})
-
 def create_entry(request):
     if request.method == "POST":
         new_form = NewEntry(request.POST)
@@ -62,9 +58,9 @@ def create_entry(request):
                         "new_title": new_title
                     })
             if not found_entry:
-                filename = f"entries/{new_title}.md"
-                #if default_storage.exists(filename):
-                    ##throw up error message
+                filename = f"entries/{new_title.capitalize()}.md"
+                if default_storage.exists(filename):
+                    default_storage.delete(filename)
                 default_storage.save(filename, ContentFile(new_content))
                 return redirect("page", title=new_title)
     else:
@@ -74,4 +70,30 @@ def create_entry(request):
         })
 
 
-#def edit_entry(request, title):
+def edit_entry(request,title):
+
+    if request.method == "POST":
+        edited_entry = NewEntry(request.POST)
+        if edited_entry.is_valid():
+            new_title = edited_entry.cleaned_data["title"]
+            new_content = edited_entry.cleaned_data["content"]
+            util.save_entry(new_title, new_content)
+            return redirect("page", title=new_title)
+
+    else:
+        edit_request= util.get_entry(title)
+        if edit_request is None:
+            return render(request, "encyclopedia/nopage.html", {
+                "title": title.capitalize()
+             })
+        else:
+            form_to_edit = NewEntry(initial={
+                "title": title.capitalize(),
+                "content": edit_request
+            })
+            return render(request, "encyclopedia/edit_entry.html", {
+                "form": form_to_edit,
+                "title": title.capitalize()
+            })
+
+
