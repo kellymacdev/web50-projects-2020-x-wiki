@@ -1,10 +1,6 @@
 from django.shortcuts import render, redirect
 import markdown
 from . import util
-from django import forms
-
-class NewEntry(forms.Form):
-    entry_request = forms.CharField()
 
 def index(request):
     return render(request, "encyclopedia/index.html", {
