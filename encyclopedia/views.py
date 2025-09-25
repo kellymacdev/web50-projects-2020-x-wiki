@@ -1,3 +1,6 @@
+import random
+
+from django.db.models.functions import Random
 from django.shortcuts import render, redirect
 import markdown
 from . import util
@@ -5,6 +8,7 @@ from django import forms
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
+from .util import list_entries
 
 
 class NewEntry(forms.Form):
@@ -96,4 +100,6 @@ def edit_entry(request,title):
                 "title": title.capitalize()
             })
 
-
+def random_entry(request):
+    random_number = random.randrange(len(list_entries()))
+    return redirect("page",title=list_entries()[random_number])
